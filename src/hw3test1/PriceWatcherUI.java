@@ -13,6 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public class PriceWatcherUI {
@@ -26,13 +30,13 @@ public class PriceWatcherUI {
 	private JList list;
 	private JPopupMenu popup;
 	private MouseListener popupListener = new PopupListener();
+	private Database database = new Database();
 
 	public static void main(String[] args) {
 		new PriceWatcherUI();
 	}
 
 	public PriceWatcherUI() {
-
 		// frame
 		JFrame frame = this.makeFrame(this.dim);
 
@@ -41,7 +45,7 @@ public class PriceWatcherUI {
 		addButton.addActionListener(new AddButtonActionListener());
 		removeButton = makeNavigationButton("/image/remove.png", "Remove item", "Remove");
 		removeButton.addActionListener(new RemoveButtonActionListener());
-		checkButton = makeNavigationButton("/image/check.png", "Check item", "Check");
+		checkButton = makeNavigationButton("/image/check.png", "Check items", "Check");
 		checkButton.addActionListener(new CheckButtonActionListener());
 		editButton = makeNavigationButton("/image/edit.png", "Edit item", "Edit");
 		editButton.addActionListener(new EditButtonActionListener());
@@ -69,6 +73,7 @@ public class PriceWatcherUI {
 		frame.add(toolBar, BorderLayout.NORTH);
 		frame.setJMenuBar(menu);
 		frame.add(scrollPane, BorderLayout.CENTER);
+		database.readItems(this.itemManager);
 		frame.show();
 	}
 
@@ -214,13 +219,10 @@ public class PriceWatcherUI {
 
 	// make toolbar buttons
 	protected JButton makeNavigationButton(String path, String toolTipText, String altText) {
-		// String imageLocation = image + ".png";
 		java.net.URL imgURL = getClass().getResource(path);
 
-		// URL imageURL = ToolBar.class.getResource(imageLocation);
-
 		JButton button = new JButton();
-		// button.setActionCommand(actionCommand);
+
 		button.setToolTipText(toolTipText);
 
 		ImageIcon icon = createImageIcon(path);
@@ -239,7 +241,7 @@ public class PriceWatcherUI {
 	// action listeners for button
 	class AddButtonActionListener implements ActionListener {
 		private JTextField nameTextField = new JTextField();
-		//private JTextField priceTextField = new JTextField();
+
 		private JTextField urlTextField = new JTextField();
 
 		@Override
@@ -251,17 +253,40 @@ public class PriceWatcherUI {
 
 			if (option == JOptionPane.OK_OPTION) {
 				String name = nameTextField.getText();
-				//String price = priceTextField.getText();
+
 				String url = urlTextField.getText();
 
-				//double doublePrice = Double.parseDouble(price);
+				// check url
+				try {
+					if (checkUrl(url)) {
 
-				itemManager.addItem(new ItemView(new Item(name, url)));
+						Item newItem = new Item(name, url);
+						itemManager.addItem(new ItemView(newItem));
+						try {
+							database.storeItem(newItem);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 
-				// clear text fields
-				nameTextField.setText("");
-				//priceTextField.setText("");
-				urlTextField.setText("");
+						// clear text fields
+						nameTextField.setText("");
+						urlTextField.setText("");
+					}
+				} catch (MalformedURLException e1) {
+					JOptionPane options2 = new JOptionPane();
+
+					JOptionPane.showMessageDialog(null, "PAGE NOT FOUND", "PAGE NOT FOUND", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+
+		public boolean checkUrl(String url) throws MalformedURLException {
+			try {
+				new URL(url).toURI();
+				System.out.println("True");
+				return true;
+			} catch (URISyntaxException e) {
+				return false;
 			}
 		}
 	}
@@ -303,12 +328,16 @@ public class PriceWatcherUI {
 			itemManager.itemViews.removeRange(firstSelected, lastSelected);
 
 			int size = itemManager.itemViews.size();
-
 			if (firstSelected == itemManager.itemViews.getSize()) {
-				// Removed item in last position.
 				firstSelected--;
 			}
 			list.setSelectedIndex(firstSelected);
+
+			try {
+				database.updateItem(itemManager);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 
 		}
 	}
@@ -370,6 +399,11 @@ public class PriceWatcherUI {
 				nameTextField.setText("");
 				priceTextField.setText("");
 				urlTextField.setText("");
+			}
+			try {
+				database.updateItem(itemManager);
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		}
 	}

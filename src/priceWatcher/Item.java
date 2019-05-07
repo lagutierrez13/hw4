@@ -2,7 +2,7 @@ package priceWatcher;
 
 import java.util.*;
 
-import noapplet.Network;
+import hw4test1.Network;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -30,6 +30,15 @@ public class Item {
 		this.priceFinder = new Network();
 	}
 
+	public Item(String name, double initPrice, double currentPrice, String url, double change, String dateAdded) {
+		this.name = name;
+		this.initPrice = initPrice;
+		this.currentPrice = this.priceFinder.getPrice(url);
+		this.url = url;
+		calculateChange();
+		this.dateAdded = dateAdded;
+	}
+
 	public Item(String name, String url) {
 		this.name = name;
 		this.initPrice = this.priceFinder.getPrice(url);
@@ -41,7 +50,8 @@ public class Item {
 
 	public Item(String name, double initPrice, double currentPrice, String url) {
 		this.name = name;
-		this.initPrice = this.priceFinder.getPrice(url);;
+		this.initPrice = this.priceFinder.getPrice(url);
+		;
 		this.currentPrice = currentPrice;
 		this.url = url;
 		calculateChange();
@@ -116,14 +126,15 @@ public class Item {
 		return this.dateAdded;
 	}
 
+	public String getAll() {
+		return this.name + "," + Double.toString(this.initPrice) + "," + Double.toString(this.currentPrice) + ","
+				+ this.url + "," + Double.toString(this.change) + "," + this.dateAdded;
+	}
+
 	// setters
 	public void setPrice() {
 		this.currentPrice = this.priceFinder.getPrice(this.url);
 	}
-
-	// public void setPrice() {
-	//
-	// }
 
 	public void setName(String name) {
 		this.name = name;
@@ -144,4 +155,5 @@ public class Item {
 	public void setChange() {
 		calculateChange();
 	}
+
 }

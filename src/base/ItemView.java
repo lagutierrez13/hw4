@@ -25,11 +25,8 @@ import priceWatcher.*;
 /** A special panel to display the detail of an item. */
 
 @SuppressWarnings("serial")
-public class ItemView extends JPanel // implements ListCellRenderer<Item> {
-{
+public class ItemView extends JPanel {
 	private Item item;
-	// new Item("Macbook Pro", 2999.99, 2999.99,
-	// "https://www.bestbuy.com/site/apple-macbook-pro-13-display-intel-core-i5-8-gb-memory-128gb-flash-storage-space-gray/5721723.p?skuId=5721723");;
 
 	private NumberFormat df = new DecimalFormat("#0.00");
 
@@ -81,14 +78,10 @@ public class ItemView extends JPanel // implements ListCellRenderer<Item> {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		// Dimension dim = getSize();
 
-		// --
-		// -- WRITE YOUR CODE HERE!
-		// --
 		int x = 20, y = 30;
 		g.drawImage(getImage("goTo.png"), x, y, 20, 20, null);
-		// g.drawString("[View]", x, y);
+
 		y += 50;
 		g.drawString("Name:", x, y);
 		y += 20;
@@ -127,9 +120,6 @@ public class ItemView extends JPanel // implements ListCellRenderer<Item> {
 
 	/** Return true if the given screen coordinate is inside the viewPage icon. */
 	private boolean isViewPageClicked(int x, int y) {
-		// --
-		// -- WRITE YOUR CODE HERE
-		// --
 		return new Rectangle(25, 25, 35, 25).contains(x, y);
 	}
 
